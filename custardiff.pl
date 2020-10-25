@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Sun 04 Oct 2020 18:54:16 +0300 too
+# Last modified: Sun 25 Oct 2020 17:00:32 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -53,7 +53,7 @@ sub xseekarg($$)
 sub needarg() { die "No value for '$_'\n" unless @ARGV }
 
 my ($tarf1, $tarf2);
-my $care = 'pugmd'; # perm user group mode device
+my $care = 'pugtd'; # perm user group time device
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -181,7 +181,7 @@ sub hdrdiffer() {
     chkdiffer  2, "user id", 'u';
     chkdiffer  3, "group id", 'g';
     chkdiffer  4, "file size" or $cmp = 0; # no point compare, but visual diff
-    chkdiffer  5, "mod. time", 'm';
+    chkdiffer  5, "mod. time", 't';
     chkdiffer  6, "file type" or $cmp = -1; # -1: no point ever diff
     chkdiffer  7, "link name" or $cmp = -1;
     chkdiffer  8, "user name", 'u';

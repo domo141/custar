@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Sun 04 Oct 2020 14:22:06 +0300 too
+# Last modified: Sun 25 Oct 2020 13:10:06 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -187,7 +187,7 @@ sub add_dir($$);
 sub add_dir($$) {
     my $d = $_[1]; # $_[1] is reference (alias actually), copy ($_[0] fine)
     add_filentry $_[0], $d.'/' unless $d eq '.';
-    opendir my $dh, $d or die $!;
+    opendir my $dh, $d or die "Opening dir '$d': $!\n";
     $d = ($d eq '.')? '': "$d/";
     L: while (readdir $dh) {
 	next if $_ eq '.' or $_ eq '..';

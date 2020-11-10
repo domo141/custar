@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Sat 24 Oct 2020 17:20:10 EEST too
-# Last modified: Sun 25 Oct 2020 17:25:46 +0200 too
+# Last modified: Tue 10 Nov 2020 21:51:38 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -139,12 +139,12 @@ sub read_hdr($$$) {
 	return
     }
     @h = unpack_ustar_hdr $buf, $_[2];
-    my $n = ($h[0] =~ tr[/]/\n/r);
-    unless ($_[1] le $n and $care_o) {
-	print "- ^ - file name sort order discontinuity - v -\n";
+    my $n = ($h[0] =~ tr[/]/\0/r);
+    if ($_[1] ge $n and $care_o) {
+	print "-- ^ -- file name sort order discontinuity -- v --\n";
 	unless ($care_n) {
-	    $_[1] =~ tr/\n/\//;
-	    my $o = ($n =~ tr/\n/\//r);
+	    $_[1] =~ tr/\0/\//;
+	    my $o = ($n =~ tr/\0/\//r);
 	    print "\\-- $_[1] <=> $o\n"
 	}
     }

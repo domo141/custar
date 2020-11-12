@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Sun 25 Oct 2020 17:00:32 +0200 too
+# Last modified: Thu 12 Nov 2020 17:36:26 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -24,7 +24,7 @@ my ($seek1, $cf1, $seek2, $cf2) = (0, undef, 0, undef);
 my @diffcmds;
 
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
-	   'gz' => 'gzip', 'gzip' => 'gzip',
+	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
 	   'xz' => 'xz', '.txz' => 'xz',
 	   'lz' => 'lzip', '.tlz' => 'lzip' );
 
@@ -205,6 +205,7 @@ sub read_hdr($$$) {
 	    last;
 	}
 	die "fixme" unless $l == 0;
+	$_[1] = "\377\377";
 	return ("\377\377", 0, 0, 0, 0, 0, '9', '', '', '', 0, 0, 0)
     }
     my @h = unpack_ustar_hdr $buf, $_[2];
@@ -372,12 +373,12 @@ T: while (1) {
 	    next T
 	}
 	if ($n < 0) {
-	    push @only1, $h0[0];
+	    push @only1, $h0[0]; # warn "<<< $h0[0]\n";
 	    consume $fh1, $h0[4], '';
 	    @h0 = read_hdr $fh1, $pname0, $tarf1;
 	}
 	else {
-	    push @only2, $h1[0];
+	    push @only2, $h1[0]; # warn ">>> $h0[0]\n";
 	    consume $fh2, $h1[4], '';
 	    @h1 = read_hdr $fh2, $pname1, $tarf2;
 	}

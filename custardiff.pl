@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 12 Nov 2020 17:36:26 +0200 too
+# Last modified: Thu 04 Feb 2021 18:07:38 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -40,13 +40,12 @@ sub xseekarg($$)
 	$n = $1;
     }
     my ($s, $f) = (0, '');
-    foreach (split /,/, $a) {
+    foreach (split /[,.]/, $a) {
 	$s = $1, next if /^(\d+)$/;
 	next unless $_;
 	$f = $zo{$_};
 	die "'$_': not in (", join(', ', sort keys %zo),"\n" unless defined $f;
     }
-
     (($n == 1)? ($seek1, $cf1): ($seek2, $cf2)) = ($s, $f);
 }
 
@@ -79,7 +78,21 @@ while (@ARGV) {
 
     die "'$_': unknown option\n"
 }
-die "Usage: $0 [options] tarchive1 tarchive2\n" unless defined $tarf2;
+
+unless (defined $tarf2) {
+    die <<EOF;
+
+Usage: $0 [-options] tarchive1 tarchive2
+
+Options:
+    -s /regexp/replacement/  -- filename replacements (for filename matching)
+    -d [tdiff]:[bdiff]       -- optional text/binary diff programs
+    -c (pugtd)               -- for hdrcmp only: perm user group time device
+    -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
+    -x2 seek,ffmt            -- \\ first seek, then e.g. gunzip if fmt 'tgz'
+
+EOF
+}
 
 die "'$tarf1': no such file\n" unless -f $tarf1;
 die "'$tarf2': no such file\n" unless -f $tarf2;

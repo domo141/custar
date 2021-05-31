@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 04 Feb 2021 18:07:38 +0200 too
+# Last modified: Mon 31 May 2021 17:11:43 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -275,7 +275,7 @@ if (@diffcmds) {
 	$diffcmds[1] = [ split /\s+/, $diffcmds[1] ];
     }
     else {
-	$diffcmds[1] = [ 'sh', '-c', 'cmd -b -l "$0" "$1" | less' ];
+	$diffcmds[1] = [ 'sh', '-c', 'cmp -b -l "$0" "$1" | less' ];
 	foreach (qw/vbindiff/) {
 	    my $p = which $_;
 	    $diffcmds[1] = [ $p ], last if $p;

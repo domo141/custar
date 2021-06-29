@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Mon 31 May 2021 17:11:43 +0300 too
+# Last modified: Tue 29 Jun 2021 20:53:22 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -90,6 +90,9 @@ Options:
     -c (pugtd)               -- for hdrcmp only: perm user group time device
     -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
     -x2 seek,ffmt            -- \\ first seek, then e.g. gunzip if fmt 'tgz'
+
+Hints: -s,.*?/,,  can be used to drop first path component
+       -cp        may give good information/noise balance
 
 EOF
 }

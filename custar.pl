@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Sun 25 Oct 2020 13:10:06 +0200 too
+# Last modified: Wed 11 Aug 2021 22:38:58 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -32,8 +32,9 @@ die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
   "    -C           -- change to directory before adding files\n",
   "   --exclude     -- glob patterns of files to exclude\n",
   "   --transform   -- pcre (s/.../.../) to modify filenames\n",
-  "   --xform / -s  -- like --transform (/.../.../ with -s)\n\n"
-  unless @ARGV > 2;
+  "   --xform / -s  -- like --transform (/.../.../ with -s)\n",
+  "   --nodirs      -- do not include directory entries to the archive\n",
+  "\n" unless @ARGV > 2;
 
 my $of = shift;
 
@@ -77,6 +78,7 @@ else { die "'$gmtime': unknown time format\n"; }
 my @excludes;
 my @xforms;
 my $tcwd; # one global, no order-sensitivity (at least for now)
+my $nodirs = 0;
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -107,6 +109,10 @@ while (@ARGV) {
     }
     if ($_ =~ /^--xform=(.*)/ || $_ =~ /^--transform=(.*)/) {
 	push @xforms, $1;
+	next
+    }
+    if ($_ eq '--nodirs') {
+	$nodirs = 1;
 	next
     }
     # bsd''tar option
@@ -186,7 +192,7 @@ sub add_filentry($$) {
 sub add_dir($$);
 sub add_dir($$) {
     my $d = $_[1]; # $_[1] is reference (alias actually), copy ($_[0] fine)
-    add_filentry $_[0], $d.'/' unless $d eq '.';
+    add_filentry $_[0], $d.'/' unless $d eq '.' or $nodirs;
     opendir my $dh, $d or die "Opening dir '$d': $!\n";
     $d = ($d eq '.')? '': "$d/";
     L: while (readdir $dh) {

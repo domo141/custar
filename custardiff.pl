@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Tue 29 Jun 2021 20:53:22 +0300 too
+# Last modified: Wed 22 Sep 2021 19:59:19 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -25,8 +25,8 @@ my @diffcmds;
 
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
 	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
-	   'xz' => 'xz', '.txz' => 'xz',
-	   'lz' => 'lzip', '.tlz' => 'lzip' );
+	   'xz' => 'xz', 'txz' => 'xz',
+	   'lz' => 'lzip', 'tlz' => 'lzip' );
 
 sub xseekarg($$)
 {

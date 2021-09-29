@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Wed 11 Aug 2021 22:38:58 +0300 too
+# Last modified: Wed 29 Sep 2021 20:08:47 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -261,6 +261,8 @@ if (defined $tcwd) {
 }
 
 #use Data::Dumper;
+
+$| = 1;
 
 my $dotcount = 0;
 my %links;

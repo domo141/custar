@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Wed 22 Sep 2021 19:59:19 +0300 too
+# Last modified: Thu 20 Jan 2022 00:00:53 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -82,7 +82,7 @@ while (@ARGV) {
 unless (defined $tarf2) {
     die <<EOF;
 
-Usage: $0 [-options] tarchive1 tarchive2
+Usage: $0 [-options] ustarchive1 ustarchive2
 
 Options:
     -s /regexp/replacement/  -- filename replacements (for filename matching)
@@ -99,6 +99,9 @@ EOF
 
 die "'$tarf1': no such file\n" unless -f $tarf1;
 die "'$tarf2': no such file\n" unless -f $tarf2;
+
+die "Will not run diff commands if stdout is not a tty...\n"
+  if @diffcmds and ! -t STDOUT;
 
 sub xforms($); # fn name from custar.pl...
 if (@res) {

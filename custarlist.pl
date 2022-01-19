@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Sat 24 Oct 2020 17:20:10 EEST too
-# Last modified: Tue 10 Nov 2020 21:51:38 +0200 too
+# Last modified: Wed 19 Jan 2022 23:53:38 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -53,7 +53,8 @@ while (@ARGV) {
 
     die "'$_': unknown option\n"
 }
-die "Usage: $0 [-x seek,ffmt] flags tarchive1\n" unless defined $tarf;
+die "\nUsage: $0 [-x seek,ffmt] flags ustarchive\n" .
+  "\nKnown flags: f p u g s t n h l o\n\n" unless defined $tarf;
 
 die "'$tarf': no such file\n" unless -f $tarf;
 

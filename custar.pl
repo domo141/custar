@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Wed 29 Sep 2021 20:08:47 +0300 too
+# Last modified: Tue 28 Jun 2022 19:58:39 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -34,6 +34,7 @@ die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
   "   --transform   -- pcre (s/.../.../) to modify filenames\n",
   "   --xform / -s  -- like --transform (/.../.../ with -s)\n",
   "   --nodirs      -- do not include directory entries to the archive\n",
+  "   --2streams    -- write closing zeroes in separate stream\n",
   "\n" unless @ARGV > 2;
 
 my $of = shift;
@@ -79,6 +80,7 @@ my @excludes;
 my @xforms;
 my $tcwd; # one global, no order-sensitivity (at least for now)
 my $nodirs = 0;
+my $twostreams = 0;
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -113,6 +115,10 @@ while (@ARGV) {
     }
     if ($_ eq '--nodirs') {
 	$nodirs = 1;
+	next
+    }
+    if ($_ eq '--2streams') {
+	$twostreams = 1;
 	next
     }
     # bsd''tar option
@@ -249,6 +255,8 @@ my $_tarlisted_wb = 0;
 
 sub tarlisted_open($@); # name following optional compression program & args
 sub tarlisted_close();
+sub tarlisted_close0();
+sub tarlisted_append($@); # args like _open
 
 my $owip;
 END { return unless defined $owip; chdir $swd if defined $swd; unlink $owip }
@@ -338,6 +346,11 @@ print "\n" if $dotcount % 72;
 
 if (defined $swd) {
     chdir $swd or die "Cannot chdir to '$swd': $!\n"
+}
+
+if ($twostreams) {
+    tarlisted_close0 and die "Closing tar file failed: $!\n";
+    tarlisted_append $owip, (split " ", $zc);
 }
 
 tarlisted_close and die "Closing tar file failed: $!\n";
@@ -480,6 +493,27 @@ sub tarlisted_open($@)
     $_tarlisted_wb = 0;
 }
 
+sub tarlisted_append($@)
+{
+    die "tarlisted alreadly open\n" if defined $_tarlisted_pid;
+    $_tarlisted_pid = 0;
+    if ($_[0] eq '-') {
+	open TARLISTED, '>&STDOUT' or die "dup stdout: $!\n";
+	return;
+    }
+    open TARLISTED, '>>', $_[0] or die "> $_[0]: $!\n";
+    shift;
+    _tarlisted_pipetocmd @_ if @_;
+}
+
+sub tarlisted_close0()
+{
+    close TARLISTED; # fixme: need check here.
+    $? = 0;
+    waitpid $_tarlisted_pid, 0 if $_tarlisted_pid;
+    undef $_tarlisted_pid;
+    return $?;
+}
 
 sub tarlisted_close()
 {
@@ -492,9 +526,5 @@ sub tarlisted_close()
 	_tarlisted_xsyswrite "\0" x $more;
 	$_tarlisted_wb += $more;
     }
-    close TARLISTED; # fixme: need check here.
-    $? = 0;
-    waitpid $_tarlisted_pid, 0 if $_tarlisted_pid;
-    undef $_tarlisted_pid;
-    return $?;
+    return tarlisted_close0;
 }

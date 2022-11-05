@@ -37,3 +37,9 @@ by `flags` argument.
 
 List differences of two ustar archives. This has reasonably good usage,
 may help use of `custarlist.pl` too (in addition to reading the code).
+
+### custarfilter.pl
+
+Keep, remove, and rename files from/in a ustar archive, writing modified
+archive to stdout (failing if stdout (fd 1) is referring to a tty).
+

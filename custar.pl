@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Tue 28 Jun 2022 19:58:39 +0300 too
+# Last modified: Sun 06 Nov 2022 15:34:08 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -34,7 +34,7 @@ die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
   "   --transform   -- pcre (s/.../.../) to modify filenames\n",
   "   --xform / -s  -- like --transform (/.../.../ with -s)\n",
   "   --nodirs      -- do not include directory entries to the archive\n",
-  "   --2streams    -- write closing zeroes in separate stream\n",
+  "   --noclose     -- do not write closing zeroes (min 1k zero bytes)\n",
   "\n" unless @ARGV > 2;
 
 my $of = shift;
@@ -80,7 +80,7 @@ my @excludes;
 my @xforms;
 my $tcwd; # one global, no order-sensitivity (at least for now)
 my $nodirs = 0;
-my $twostreams = 0;
+my $noclose = 0;
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -117,8 +117,8 @@ while (@ARGV) {
 	$nodirs = 1;
 	next
     }
-    if ($_ eq '--2streams') {
-	$twostreams = 1;
+    if ($_ eq '--noclose') {
+	$noclose = 1;
 	next
     }
     # bsd''tar option
@@ -135,6 +135,9 @@ while (@ARGV) {
 }
 
 die "No files/dirs\n" unless @ARGV;
+
+# blocking factor, may get into an option (-b, --blocking-factor in gtar)
+my $bf = 20; # defaults 10240 as "record size" ($rs in tarlisted_close)
 
 my $swd;
 if (defined $tcwd) {
@@ -256,7 +259,6 @@ my $_tarlisted_wb = 0;
 sub tarlisted_open($@); # name following optional compression program & args
 sub tarlisted_close();
 sub tarlisted_close0();
-sub tarlisted_append($@); # args like _open
 
 my $owip;
 END { return unless defined $owip; chdir $swd if defined $swd; unlink $owip }
@@ -348,13 +350,12 @@ if (defined $swd) {
     chdir $swd or die "Cannot chdir to '$swd': $!\n"
 }
 
-if ($twostreams) {
+if ($noclose) {
     tarlisted_close0 and die "Closing tar file failed: $!\n";
-    tarlisted_append $owip, (split " ", $zc);
 }
-
-tarlisted_close and die "Closing tar file failed: $!\n";
-
+else {
+    tarlisted_close and die "Closing tar file failed: $!\n";
+}
 rename $owip, $of;
 undef $owip;
 
@@ -493,19 +494,6 @@ sub tarlisted_open($@)
     $_tarlisted_wb = 0;
 }
 
-sub tarlisted_append($@)
-{
-    die "tarlisted alreadly open\n" if defined $_tarlisted_pid;
-    $_tarlisted_pid = 0;
-    if ($_[0] eq '-') {
-	open TARLISTED, '>&STDOUT' or die "dup stdout: $!\n";
-	return;
-    }
-    open TARLISTED, '>>', $_[0] or die "> $_[0]: $!\n";
-    shift;
-    _tarlisted_pipetocmd @_ if @_;
-}
-
 sub tarlisted_close0()
 {
     close TARLISTED; # fixme: need check here.
@@ -521,8 +509,10 @@ sub tarlisted_close()
     _tarlisted_xsyswrite "\0" x 1024;
     $_tarlisted_wb += 1024;
 
-    if ($_tarlisted_wb % 10240 != 0) {
-	my $more = 10240 - $_tarlisted_wb % 10240;
+    my $rs = $bf * 512;
+
+    if ($_tarlisted_wb % $rs != 0) {
+	my $more = $rs - $_tarlisted_wb % $rs;
 	_tarlisted_xsyswrite "\0" x $more;
 	$_tarlisted_wb += $more;
     }

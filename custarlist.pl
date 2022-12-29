@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Sat 24 Oct 2020 17:20:10 EEST too
-# Last modified: Wed 19 Jan 2022 23:53:38 +0200 too
+# Last modified: Thu 29 Dec 2022 19:59:45 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -20,9 +20,10 @@ my @res;
 my ($seek, $cf) = (0, undef);
 
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
-	   'gz' => 'gzip', 'gzip' => 'gzip',
-	   'xz' => 'xz', '.txz' => 'xz',
-	   'lz' => 'lzip', '.tlz' => 'lzip' );
+	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
+	   'xz' => 'xz', 'txz' => 'xz',
+	   'lz' => 'lzip', 'tlz' => 'lzip',
+	   'zst' => 'zstd', 'tzst' => 'zstd' );
 
 sub xseekarg($)
 {
@@ -74,7 +75,8 @@ die "'$care': unknown interest flags\n" if $care;
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.gz' => 'gzip', '.tgz' => 'gzip',
 	   '.tar.xz' => 'xz', '.txz' => 'xz',
-	   '.tar.lz' => 'lzip', '.tlz' => 'lzip' );
+	   '.tar.lz' => 'lzip', '.tlz' => 'lzip',
+	   '.tar.zst' => 'zstd', '.tzst' => 'zstd' );
 
 sub fmz($$$) {
     $_[0] = $_[2], return if defined $_[2];

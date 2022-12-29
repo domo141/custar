@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Sat 05 Nov 2022 22:25:58 +0200 too
+# Last modified: Thu 29 Dec 2022 20:02:28 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -19,9 +19,10 @@ use warnings;
 my ($seek, $cf) = (0, undef);
 
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
-	   'gz' => 'gzip', 'gzip' => 'gzip',
-	   'xz' => 'xz', '.txz' => 'xz',
-	   'lz' => 'lzip', '.tlz' => 'lzip' );
+	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
+	   'xz' => 'xz', 'txz' => 'xz',
+	   'lz' => 'lzip', 'tlz' => 'lzip',
+	   'zst' => 'zstd', 'tzst' => 'zstd' );
 
 sub xseekarg($)
 {
@@ -67,7 +68,8 @@ die "'$tarf': no such file\n" unless -f $tarf;
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.gz' => 'gzip', '.tgz' => 'gzip',
 	   '.tar.xz' => 'xz', '.txz' => 'xz',
-	   '.tar.lz' => 'lzip', '.tlz' => 'lzip' );
+	   '.tar.lz' => 'lzip', '.tlz' => 'lzip',
+	   '.tar.zst' => 'zstd', '.tzst' => 'zstd' );
 
 sub fmz($$$) {
     $_[0] = $_[2], return if defined $_[2];

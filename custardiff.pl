@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 20 Jan 2022 00:00:53 +0200 too
+# Last modified: Thu 29 Dec 2022 20:03:11 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -26,7 +26,8 @@ my @diffcmds;
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
 	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
 	   'xz' => 'xz', 'txz' => 'xz',
-	   'lz' => 'lzip', 'tlz' => 'lzip' );
+	   'lz' => 'lzip', 'tlz' => 'lzip',
+	   'zst' => 'zstd', 'tzst' => 'zstd' );
 
 sub xseekarg($$)
 {
@@ -128,7 +129,8 @@ if (@res) {
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.gz' => 'gzip', '.tgz' => 'gzip',
 	   '.tar.xz' => 'xz', '.txz' => 'xz',
-	   '.tar.lz' => 'lzip', '.tlz' => 'lzip' );
+	   '.tar.lz' => 'lzip', '.tlz' => 'lzip',
+	   '.tar.zst' => 'zstd', '.tzst' => 'zstd' );
 
 sub fmz($$$) {
     $_[0] = $_[2], return if defined $_[2];

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Sun 06 Nov 2022 15:34:08 +0200 too
+# Last modified: Thu 29 Dec 2022 19:54:02 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -42,7 +42,8 @@ my $of = shift;
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.gz' => 'gzip --no-name', '.tgz' => 'gzip --no-name',
 	   '.tar.xz' => 'xz', '.txz' => 'xz',
-	   '.tar.lz' => 'lzip', '.tlz' => 'lzip' );
+	   '.tar.lz' => 'lzip', '.tlz' => 'lzip',
+	   '.tar.zst' => 'zstd', '.tzst' => 'zstd' );
 
 $of =~ /\S((?:[.]tar)?[.]?[.]\w+)$/;
 

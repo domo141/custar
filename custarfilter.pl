@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Thu 29 Dec 2022 20:02:28 +0200 too
+# Last modified: Sun 21 May 2023 20:42:45 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -36,7 +36,7 @@ sub xseekarg($)
 
 sub needarg() { die "No value for '$_'\n" unless @ARGV }
 
-my (@mats, @subs);
+my (@mats, @subs, @fcrep);
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -44,20 +44,33 @@ while (@ARGV) {
     push (@mats, [qr($1), 1]), shift, next if /^[+](.*)[+]$/;
     push (@mats, [qr($1), 0]), shift, next if /^[-](.*)[-]$/;
     push (@subs, $_), shift, next if /s(.).+\1.*\1$/;
+    if (/^:([^:]+):(.*):([^:]+):(.*):([^:]+):$/) {
+	die "'$1', '$3' and '$5' -- all of these not same\n"
+	  if $1 ne $3 or $1 ne $5;
+	die "'$2' and '$4' do not have same size\n"
+	  unless length $2 == length $4;
+	push @fcrep, [$2, $4];
+	shift; next
+    }
     needarg, xseekarg(shift), next if $_ eq '-x';
     xseekarg($1), next if /^-x[,=](.*)/;
     last;
 }
 die "$0: '$ARGV[0]': too many arguments\n" if @ARGV > 1;
 
-die "\nUsage: $0 [-x seek,ffmt] ([-rem-] [+keep+] [s:re:repl:]...) ustarchive
+die "\nUsage: $0 [-x seek,ffmt] [-rem-] [+keep+] \\
+	[[s:re:repl:] [:/:str:/:rep:/:] ...] ustarchive
 
-filenames matching regeps between -...- are removed from archive
-filenames matching regeps between +...+ are kept in archive
-- first match decides fate -- file kept if no match
+ filenames matching regeps between -...- are removed from archive
+ filenames matching regeps between +...+ are kept in archive
+ - first match decides fate -- file kept if no match
 
-s:re:regexp: modifies filename ( s/re/repl/, s(re)(repl), s're'repl'... )
-- eval's in perl code: no silly input (noone to run silly code)
+ s:re:regexp: modifies filename ( s/re/repl/, s(re)(repl), s're'repl'... )
+ - eval's in perl code: no silly input (noone to run silly code)
+
+ :/:str:/:rep:/: replaces content. size must match. '/' can be changed to
+ any character (the same to be in all 3 places, not ':'). if file size is
+ larger than 1 MiB content only in the last (leftover) \"block\" is replaced
 
 " unless @ARGV;
 
@@ -188,10 +201,10 @@ while (1) {
 	}
 	$left = $left & 511;
 	read $fh, $buf, 512 - $left if $left;
-	next;
+	next
     }
     my $nmod;
-    if ($fate) {
+    if ($fate) { # hmm, there is unless fate above, so this may be trye always?
 	# FIXME: symbolic/hard links
 	$nmod = $n;
 	eval "\$n =~ $_" foreach (@subs);
@@ -225,12 +238,14 @@ while (1) {
     while ($left > 1024 * 1024) {
 	# xxx check read length (readfully?, check other perl code)
 	read $fh, $buf, 1024 * 1024;
+	#$buf =~ s/$_->[0]/$_->[1]/g foreach (@fcrep);
 	print $buf;
 	$left -= 1024 * 1024
     }
     if ($left > 0) {
 	# ditto
 	read $fh, $buf, $left;
+	$buf =~ s/$_->[0]/$_->[1]/g foreach (@fcrep);
 	print $buf
     }
     $left = $left & 511;

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Sun 21 May 2023 20:42:45 +0300 too
+# Last modified: Mon 22 May 2023 16:58:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -49,7 +49,7 @@ while (@ARGV) {
 	  if $1 ne $3 or $1 ne $5;
 	die "'$2' and '$4' do not have same size\n"
 	  unless length $2 == length $4;
-	push @fcrep, [$2, $4];
+	push @fcrep, [qr/\Q$2\E/, $4];
 	shift; next
     }
     needarg, xseekarg(shift), next if $_ eq '-x';

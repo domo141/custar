@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Mon 22 May 2023 16:58:42 +0300 too
+# Last modified: Tue 06 Jun 2023 19:08:52 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -185,11 +185,19 @@ while (1) {
     last unless $n;
 
     my $fate = fate $n;
+    my $n_orig;
+    if ($fate) {
+	# FIXME: symbolic/hard links
+	$n_orig = $n;
+	eval "\$n =~ $_" foreach (@subs);
+	$fate = 0 unless $n;
+    }
     my @o;
     push @o, $fate;
     my $left = oct($hdr[4]);
     unless ($fate) {
 	# skip file #
+	#warn "@o $n_orig\n";
 	while ($left > 1024 * 1024) {
 	    # xxx check read length (readfully?, check other perl code)
 	    read $fh, $buf, 1024 * 1024;
@@ -203,19 +211,12 @@ while (1) {
 	read $fh, $buf, 512 - $left if $left;
 	next
     }
-    my $nmod;
-    if ($fate) { # hmm, there is unless fate above, so this may be trye always?
-	# FIXME: symbolic/hard links
-	$nmod = $n;
-	eval "\$n =~ $_" foreach (@subs);
-	$nmod = ($nmod eq $n)? 0: 1
-    }
     push @o, $n;
     push @o, '=>', $hdr[8] if $hdr[7] == 1; # show hard link target
     push @o, '->', $hdr[8] if $hdr[7] == 2; # show sym. link target
-    warn "@o\n" if @o;
+    #warn "@o\n" if @o;
 
-    if ($nmod) {
+    if ($n_orig ne $n) {
 	my $name = $_[0];
 	my $pfx;
 	if (length($n) > 100) {

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Thu 29 Dec 2022 19:54:02 +0200 too
+# Last modified: Fri 10 Nov 2023 09:50:17 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -31,8 +31,8 @@ die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
   " options:\n",
   "    -C           -- change to directory before adding files\n",
   "   --exclude     -- glob patterns of files to exclude\n",
-  "   --transform   -- pcre (s/.../.../) to modify filenames\n",
-  "   --xform / -s  -- like --transform (/.../.../ with -s)\n",
+  "   --transform   -- pcre (with eg. s/.../.../) to modify filenames\n",
+  "   --xform / -s  -- transform, or (-s/.../.../) (eg. -s:^:dir/:)\n",
   "   --nodirs      -- do not include directory entries to the archive\n",
   "   --noclose     -- do not write closing zeroes (min 1k zero bytes)\n",
   "\n" unless @ARGV > 2;

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Wed 09 Sep 2020 20:00:17 EEST too
-# Last modified: Sat 19 Sep 2020 15:19:22 +0300 too
+# Last modified: Thu 14 Dec 2023 22:54:55 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -41,13 +41,13 @@ case $1 in ?*.tar) I=
 	;; ?*.txz | ?*.tar.xz) I='xz'
 	;; ?*.tlz | ?*.tar.lz) I='lzip'
 	;; ?*.tbz2 | ?*.tar.bz2) I='bzip'
+	;; ?*.tzst | ?*.tar.zst) I='zstd'
 	;; *) die "Unknown file name suffix in '$1' (check $0 for known ones)"
 esac
 
 tarname=$1
 mtime=$2
 
-test -f "$2" ||
 case $2 in 20[0-9][0-9]-[01][0-9]-[0-3][0-9]) # ok
 	;; 20[0-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9])
 		# the formats above accepted by gnu tar as is #

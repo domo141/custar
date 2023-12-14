@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Fri 10 Nov 2023 09:50:17 +0200 too
+# Last modified: Thu 14 Dec 2023 21:38:30 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -24,6 +24,7 @@ use POSIX qw/mktime getcwd/;
 $ENV{TZ} = 'UTC';
 
 die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
+  "  if tarname starts with '.', it is prefixed with first dir/file in args\n",
   "  mtime formats (in UTC):\n",
   "    yyyy-mm-dd  yyyy-mm-ddThh:mm:ss  yyyy-mm-dd+hh:mm:ss\n",
   "    yyyy-mm-dd+hh:mm  yyyy-mm-dd+hh  hh:mm  d  \@secs\n",
@@ -136,6 +137,11 @@ while (@ARGV) {
 }
 
 die "No files/dirs\n" unless @ARGV;
+
+#no kato vielä jos polkua -- tai sitten optio -- ehkä optio parenpi
+#$ARGV[0] =~ s./+$.., $of = $ARGV[0] . $of if ord $of == 46;
+
+#print $of, "\n"; exit 0;
 
 # blocking factor, may get into an option (-b, --blocking-factor in gtar)
 my $bf = 20; # defaults 10240 as "record size" ($rs in tarlisted_close)
@@ -291,12 +297,12 @@ foreach (@filelist) {
 	    my $lname = readlink $_->[0];
 	    $prm = oct(777);
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '2', $lname,'root','root', 0,0;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '2', $lname,'root','root', -1,-1;
 	    next
 	}
 	if (-d _) {
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '5', '', 'root','root', 0,0;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '5', '', 'root','root', -1,-1;
 	    next
 	}
 	if (-c _) {
@@ -328,7 +334,7 @@ foreach (@filelist) {
 	}
 
 	_tarlisted_writehdr _tarlisted_mkhdr
-	  $_->[7], $prm, 0,0, $size, $gmtime, $type, $lname,'root','root', 0,0;
+	  $_->[7], $prm, 0,0, $size,$gmtime, $type, $lname,'root','root',-1,-1;
 
 	next if $lname;
 
@@ -428,8 +434,8 @@ sub _tarlisted_mkhdr($$$$$$$$$$$$)
     my $version = '00';
     my $uname = pack('a32', $_[8]);
     my $gname = pack('a32', $_[9]);
-    my $devmajor = sprintf("%07o\0", $_[10]);
-    my $devminor = sprintf("%07o\0", $_[11]);
+    my $devmajor = $_[10] < 0? "\0" x 8: sprintf("%07o\0", $_[10]);
+    my $devminor = $_[11] < 0? "\0" x 8: sprintf("%07o\0", $_[11]);
     my $pad = pack('a12', '');
 
     my $hdr = join '', $name, $mode, $uid, $gid, $size, $mtime,

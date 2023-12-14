@@ -8,12 +8,9 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 29 Dec 2022 20:03:11 +0200 too
+# Last modified: Thu 14 Dec 2023 21:38:24 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
-
-# hint: LC_ALL=C sh -c './custar.sh archive.tar.gz 2020-02-02 *'
-# for archiving with shell wildcard (custar.pl . gets close)
 
 use 5.14.1; # for tr/.../.../r (used in one (1) line)
 use strict;
@@ -178,7 +175,7 @@ sub unpack_ustar_hdr($$) {
     xforms $l[0] if @res;
     die "$_[1]: '$l[9]': not 'ustar{\\0}00'\n" unless $l[9] eq "ustar\00000";
     return ($l[0], $l[1]+0, $l[2]+0, $l[3]+0, oct($l[4]), oct($l[5]),
-	    $l[7], $l[8], $l[10], $l[11], $l[12]+0, $l[13]+0, 1);
+	    $l[7], $l[8], $l[10], $l[11], ($l[12]||-1)+0, ($l[13]||-1)+0, 1);
 }
 
 my (@h0, @h1);

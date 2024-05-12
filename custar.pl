@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Thu 14 Dec 2023 21:38:30 +0200 too
+# Last modified: Sun 12 May 2024 19:54:01 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -46,7 +46,7 @@ my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.lz' => 'lzip', '.tlz' => 'lzip',
 	   '.tar.zst' => 'zstd', '.tzst' => 'zstd' );
 
-$of =~ /\S((?:[.]tar)?[.]?[.]\w+)$/;
+$of =~ /((?:[.]tar)?[.]?[.]\w+)$/;
 
 my $zc;
 
@@ -138,8 +138,7 @@ while (@ARGV) {
 
 die "No files/dirs\n" unless @ARGV;
 
-#no kato vielä jos polkua -- tai sitten optio -- ehkä optio parenpi
-#$ARGV[0] =~ s./+$.., $of = $ARGV[0] . $of if ord $of == 46;
+$ARGV[0] =~ s./+$.., $of = $ARGV[0] . $of if ord $of == 46;
 
 #print $of, "\n"; exit 0;
 

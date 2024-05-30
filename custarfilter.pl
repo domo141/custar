@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Tue 06 Jun 2023 19:08:52 +0300 too
+# Last modified: Thu 30 May 2024 22:14:37 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -57,9 +57,9 @@ while (@ARGV) {
     last;
 }
 die "$0: '$ARGV[0]': too many arguments\n" if @ARGV > 1;
-
+$0 =~ s:.*/::,
 die "\nUsage: $0 [-x seek,ffmt] [-rem-] [+keep+] \\
-	[[s:re:repl:] [:/:str:/:rep:/:] ...] ustarchive
+           [[s:re:repl:] [:/:str:/:rep:/:] ...] ustarchive
 
  filenames matching regeps between -...- are removed from archive
  filenames matching regeps between +...+ are kept in archive
@@ -71,6 +71,8 @@ die "\nUsage: $0 [-x seek,ffmt] [-rem-] [+keep+] \\
  :/:str:/:rep:/: replaces content. size must match. '/' can be changed to
  any character (the same to be in all 3 places, not ':'). if file size is
  larger than 1 MiB content only in the last (leftover) \"block\" is replaced
+
+ outputs uncompressed ustar archive, pipe to compressor and redirect to file
 
 " unless @ARGV;
 

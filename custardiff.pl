@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 14 Dec 2023 21:38:24 +0200 too
+# Last modified: Wed 19 Jun 2024 22:25:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -172,7 +172,10 @@ sub unpack_ustar_hdr($$) {
 	$l[14] =~ s:/*$:/:;
 	$l[0] = $l[14] . $l[0];
     }
-    xforms $l[0] if @res;
+    if (@res) {
+	xforms $l[0];
+	xforms $l[8] if $l[7] == 1; # hard link
+    }
     die "$_[1]: '$l[9]': not 'ustar{\\0}00'\n" unless $l[9] eq "ustar\00000";
     return ($l[0], $l[1]+0, $l[2]+0, $l[3]+0, oct($l[4]), oct($l[5]),
 	    $l[7], $l[8], $l[10], $l[11], ($l[12]||-1)+0, ($l[13]||-1)+0, 1);

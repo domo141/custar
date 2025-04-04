@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Sun 12 May 2024 19:54:01 +0300 too
+# Last modified: Fri 04 Apr 2025 20:25:13 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -342,8 +342,9 @@ foreach (@filelist) {
 	while ( (my $len = sysread($in, $buf, 524288)) > 0) {
 	    _tarlisted_xsyswrite $buf;
 	    $tlen += $len;
+	    die "$_->[0] grew while being archived\n" if $tlen > $size;
 	}
-	die "Short read ($tlen != $size)!\n" if $tlen != $size;
+	die "$_->[0]: Short read ($tlen != $size)!\n" if $tlen != $size;
 	close $in; # fixme, check
 	$_tarlisted_wb += $tlen;
 	_tarlisted_addpad;
@@ -492,9 +493,9 @@ sub tarlisted_open($@)
     $_tarlisted_pid = 0;
     if ($_[0] eq '-') {
 	open TARLISTED, '>&STDOUT' or die "dup stdout: $!\n";
-	return;
+    } else {
+	open TARLISTED, '>', $_[0] or die "> $_[0]: $!\n";
     }
-    open TARLISTED, '>', $_[0] or die "> $_[0]: $!\n";
     shift;
     _tarlisted_pipetocmd @_ if @_;
     $_tarlisted_wb = 0;

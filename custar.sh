@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Wed 09 Sep 2020 20:00:17 EEST too
-# Last modified: Thu 14 Dec 2023 22:54:55 +0200 too
+# Last modified: Wed 09 Apr 2025 21:46:45 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -72,7 +72,7 @@ shift 2
 
 trap 'rm -f "$tarname".wip' 0
 
-x tar --owner=root --group=root --format=ustar --sort=name \
+x tar --format=ustar --owner=0 --group=0 --numeric-owner --sort=name \
 	--mtime="$mtime" ${I:+-I "$I"} -cf "$tarname".wip "$@"
 
 # note: no traps executed after exec

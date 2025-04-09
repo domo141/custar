@@ -9,14 +9,13 @@
 #
 # Created: Wed 09 Sep 2020 20:00:17 EEST too (custar.sh)
 # Created: San 04 Apr 2025 19:08:03 +0300 too (cpaxgtar.sh)
-# Last modified: Sun 06 Apr 2025 22:05:45 +0300 too
+# Last modified: Wed 09 Apr 2025 21:54:54 +0300 too
 
-# If custar.sh used --owner=0 --group=0 and --numeric-owner (and custar.pl
-# did the same thing), this would often create byte-exact archives.
-# When ustar format is not enough (e.g. filenames too long) or one chooses
-# to have e.g. sparse archives (by giving gtar-supported option) -- or there
-# is case where gtar(1) just chooses to do so, extra "PaxHeader" content is
-# used to handle the cases.
+# This often creates byte-exact archives compared to what custar.(pl|sh) do.
+# When ustar format is not enough (e.g. filename too long) or one chooses
+# to have e.g. sparse archives (by giving gtar-supported option '-S') - or
+# there is case where gtar(1) just chooses to do so, extra "PaxHeader"
+# content is used to handle the cases.
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -76,19 +75,18 @@ esac
 
 shift 2
 
-# note: gnu tar 1.28 or newer required
+# note: gnu tar 1.28 or newer required (unused clamp-mtime since 1.29)
 
 trap 'rm -f "$tarname".wip' 0
 
 # based on custar.sh --format changed from ustar to posix and then
-# added quite a few options, taken
-# from Gnu Tar Manual (8.4) Making tar Archives More Reproducible
+# added quite a few options, taken from Gnu Tar Manual
+# (8.4) Making tar Archives More Reproducible
 # the --mode=go+u,go-w is could be controversial - custar.sh doesn't
 # have it, and one might want to set group&other permissions...
-# also, owner/group is 'root' in custar.* and no --numeric-owner there
 # note that --clamp-mtime (mentioned in that Tar Manual) not used here
 
-x gtar --owner=0 --group=0 --numeric-owner --sort=name --format=posix \
+x gtar --format=posix --owner=0 --group=0 --numeric-owner --sort=name \
 	--pax-option=exthdr.name=%d/PaxHeaders/0 --mode=go+u,go-w \
 	--pax-option=delete=atime,delete=ctime,delete=mtime \
 	--mtime="$mtime" ${I:+-I "$I"} -cf "$tarname".wip "$@"

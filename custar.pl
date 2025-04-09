@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Fri 04 Apr 2025 20:25:13 +0300 too
+# Last modified: Wed 09 Apr 2025 21:46:50 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -296,24 +296,24 @@ foreach (@filelist) {
 	    my $lname = readlink $_->[0];
 	    $prm = oct(777);
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '2', $lname,'root','root', -1,-1;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '2', $lname,'','', -1,-1;
 	    next
 	}
 	if (-d _) {
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '5', '', 'root','root', -1,-1;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '5', '', '','', -1,-1;
 	    next
 	}
 	if (-c _) {
 	    my ($dma, $mi) = ($_->[5] >> 8, $_->[5] & 0xff);
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '3', '', 'root','root', $dma,$mi;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '3', '', '','', $dma,$mi;
 	    next
 	}
 	if (-b _) {
 	    my ($dma, $mi) = ($_->[5] >> 8, $_->[5] & 0xff);
 	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $_->[7], $prm, 0,0, 0, $gmtime, '4', '', 'root','root', $dma,$mi;
+	      $_->[7], $prm, 0,0, 0, $gmtime, '4', '', '','', $dma,$mi;
 	    next
 	}
 	next unless -f _ or -l _;
@@ -333,7 +333,7 @@ foreach (@filelist) {
 	}
 
 	_tarlisted_writehdr _tarlisted_mkhdr
-	  $_->[7], $prm, 0,0, $size,$gmtime, $type, $lname,'root','root',-1,-1;
+	  $_->[7], $prm, 0,0, $size,$gmtime, $type, $lname,'','',-1,-1;
 
 	next if $lname;
 

@@ -6,7 +6,7 @@
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too (custar.pl)
 # Created: Thu 03 Apr 2025 23:10:17 EEST too (tarxzin.pl)
-# Last modified: Sat 05 Apr 2025 18:22:27 +0300 too
+# Last modified: Wed 09 Apr 2025 21:51:38 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -92,7 +92,8 @@ unless (@files) {
 
 # declare tarlisted.pm functions #
 
-sub _tarlisted_mkhdr($$$$$$$$$$$$);
+#sub _tarlisted_mkhdr($$$$$$$$$$$$);
+sub _tarlisted_mkhdr_rp($$$$$$);
 sub _tarlisted_writehdr($);
 sub _tarlisted_xsyswrite($);
 
@@ -116,8 +117,8 @@ L: foreach (@files) {
 	my $l = readlink $f;
 	unless ($l =~ m,/,) {
 	    # storing symlink when no path components
-	    _tarlisted_writehdr _tarlisted_mkhdr
-	      $n, 0777, 0,0, 0, $gmtime, '2', $l, 'root','root',-1,-1;
+	    _tarlisted_writehdr
+	      _tarlisted_mkhdr_rp $n, 0777, 0, $gmtime, '2', $l;
 	    next
 	}
 	# else stat(2)ing -- the file content behind symlink stored
@@ -146,8 +147,8 @@ L: foreach (@files) {
 	    $links{$devino} = $n;
 	}
     }
-    _tarlisted_writehdr _tarlisted_mkhdr
-      $n, $prm, 0,0, $size, $gmtime, $type, $lname, 'root','root',-1,-1;
+    _tarlisted_writehdr
+      _tarlisted_mkhdr_rp $n, $prm, $size, $gmtime, $type, $lname;
 
     next if $lname;
 
@@ -255,6 +256,13 @@ sub _tarlisted_mkhdr($$$$$$$$$$$$)
 	$devmajor, $devminor, $prefix, $pad;
 
     return $hdr;
+}
+
+# name perm size mtime type lname (no uid gid uname gname devmajor devminor)
+sub _tarlisted_mkhdr_rp($$$$$$)
+{
+    return _tarlisted_mkhdr
+      $_[0], $_[1], 0, 0, $_[2], $_[3], $_[4], $_[5], '','', -1, -1;
 }
 
 sub _tarlisted_xsyswrite($)

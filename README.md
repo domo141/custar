@@ -25,8 +25,32 @@ has some limitations (link targets max len 100 octets, file/dir pathname
 max len 255 octets (when subdir length matches 155 octets)) -- usually
 these limits are far enough but be prepared...
 
+
+Other archive-creating commands
+-------------------------------
+
+### cpaxgtar.sh
+
+Whenever ustar format is not enough, the Pax Interchange Format is used
+to store the information. Whenever there is no need, cpaxgtar.sh usually
+produces byte-exact arhives compared to custar.pl and custar.sh
+
+Diff to custar.sh is --format=posix, some --pax-options (and --mode...).
+
+### tarxzin.pl
+
+Reads filenames to be archive from standard input, filters (removes if any)
+and transforms (filenames) of those.
+The (remaining, transformed) filenames are sorted, and the files accessed
+using their original name are archived to xz-compressed ustar-formatted file.
+
+The sorting of the filenames is none *after* filename transformations.
+
+
 Related utilities
 -----------------
+
+These don't touch the input archive.
 
 ### custarlist.pl
 

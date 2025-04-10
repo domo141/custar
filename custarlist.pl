@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Sat 24 Oct 2020 17:20:10 EEST too
-# Last modified: Thu 14 Dec 2023 21:38:15 +0200 too
+# Last modified: Thu 10 Apr 2025 21:14:18 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -54,8 +54,10 @@ while (@ARGV) {
 
     die "'$_': unknown option\n"
 }
-die "\nUsage: $0 [-x seek,ffmt] flags ustarchive\n" .
-  "\nKnown flags: f p u g s t n h l o\n\n" unless defined $tarf;
+die "\nUsage: $0 [-x seek,ffmt] flags ustarchive\n\n" .
+  "Known flags: f p u g s t n h l o  fpugstnhlo\n" .
+  "      ftyp prm usr grp siz tim nam hlnk slnk (sort)ordr\n\n"
+  unless defined $tarf;
 
 die "'$tarf': no such file\n" unless -f $tarf;
 
@@ -161,19 +163,21 @@ sub dt($)
     sprintf "%d-%02d-%02d %02d:%02d:%02d",
       $d[5] + 1900, $d[4]+1, $d[3], $d[2], $d[1], $d[0]
 }
-my @ftypes = qw/ f h l c b d p /;
+my @ftypes = qw/ f h l c b d p R/;
 my $pname = '';
 
 while (1) {
     read_hdr $fh, $pname, $tarf;
     last unless $h[12];
     my @o;
-    push @o, $ftypes[$h[6]] if $care_f; # file type (from flag)
+    if ($care_f) { # file type (from flag)
+	push @o, ($h[6] =~ /^[0-7]$/)? $ftypes[$h[6]]: $h[6];
+    }
     push @o, sprintf('%03s', $h[1]) if $care_p; # perm
     push @o, sprintf('%6s', $h[8]) if $care_u;  # user
     push @o, sprintf('%6s', $h[9]) if $care_g;  # group
     if ($care_s) {
-	if ($h[6] == 3 or $h[6] == 4) {
+	if ($h[6] eq '3' or $h[6] eq '4') {
 	    my ($ma, $mi) = (oct($h[10]), oct($h[11]));
 	    push @o, sprintf('%8s', "$ma,$mi"); # devmajor/minor
 	}
@@ -183,8 +187,8 @@ while (1) {
     }
     push @o, dt $h[5] if $care_t; # mod.time
     push @o, $h[0] if $care_n;  # file name
-    push @o, '=>', $h[7] if $care_h and $h[6] == 1; # show hard link target
-    push @o, '->', $h[7] if $care_l and $h[6] == 2; # show sym. link target
+    push @o, '=>', $h[7] if $care_h and $h[6] eq '1'; # show hard link target
+    push @o, '->', $h[7] if $care_l and $h[6] eq '2'; # show sym. link target
     print "@o\n" if @o;
 
     my $left = $h[4];

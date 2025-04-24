@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -*- mode: cperl; cperl-indent-level: 4 -*-
-# $ custarsum.pl $
+# $ custarsums.pl $
 #
 # Author: Tomi Ollila -- too ät iki piste fi
 #
@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Wed 23 Apr 2025 21:23:43 +0300 too
-# Last modified: Wed 23 Apr 2025 22:15:24 +0300 too
+# Last modified: Thu 24 Apr 2025 20:45:33 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 

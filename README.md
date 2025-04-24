@@ -67,6 +67,6 @@ may help use of `custarlist.pl` too (in addition to reading the code).
 Keep, remove, and rename files from/in a ustar archive, writing modified
 archive to stdout (failing if stdout (fd 1) is referring to a tty).
 
-### custarsum.pl
+### custarsums.pl
 
 Calculate md5, sha1 or sha256 checksums of the files in the archive.

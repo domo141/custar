@@ -6,7 +6,7 @@
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too (custar.pl)
 # Created: Thu 03 Apr 2025 23:10:17 EEST too (tarxzin.pl)
-# Last modified: Wed 09 Apr 2025 21:51:38 +0300 too
+# Last modified: Mon 05 May 2025 21:36:18 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -58,6 +58,8 @@ use warnings;
 
 die "\nUsage: $0 prefix mtime close filter-transform-codeblock [ftcb-args]\n\n"
   unless @ARGV >= 4;
+
+$SIG{__DIE__} = sub { $0 =~ s,.*/,,; warn $0, ': ', @_; exit 1 };
 
 die "stdin is on a tty\n" if -t 0;
 die "stdout is on a tty\n" if -t 1;

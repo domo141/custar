@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Wed 23 Apr 2025 21:23:43 +0300 too
-# Last modified: Thu 24 Apr 2025 20:45:33 +0300 too
+# Last modified: Fri 05 Sep 2025 12:27:18 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -110,8 +110,11 @@ my @hdr;
 sub unpack_ustar_hdr($$) {
     @hdr = unpack('A100 A8 A8 A8 A12 A12 a8 A1 A100 a8 A32 A32 A8 A8 A155',
 		  $_[0]);
-    die "$_[1]: '$hdr[9]': not 'ustar{\\0}00'\n"
-      unless $hdr[9] eq "ustar\00000";
+    unless ($hdr[9] eq "ustar\00000") {
+	die "$_[1]: '$hdr[9]': not 'ustar{\\0}00' (magic + version\n"
+	  unless ($hdr[9] eq "ustar  \0");
+	print "GNU Tar header, info may be incorrect\n"
+    }
     my $n;
     if ($hdr[14]) {
 	$n = $hdr[14];

@@ -15,7 +15,7 @@ and uses (new enough) GNU tar to do the archiving. In many cases
 the created archive is exactly same as with `custar.pl`.
 
 I bet other tar archivers (e.g. `bsdtar`) can do the same, I just haven't
-tried such a case. (`custar.sh` is mainly used as output comparison tool)
+tried such a case. (`custar.sh` is mainly used as output comparison tool).
 
 custar.pl is BSD (2-clause) licensed (pure) perl program, which can be
 (easily?) edited should a need arise.
@@ -69,4 +69,12 @@ archive to stdout (failing if stdout (fd 1) is referring to a tty).
 
 ### custarsums.pl
 
-Calculate md5, sha1 or sha256 checksums of the files in the archive.
+Calculate md5, sha1 or sha256 checksums of the files in the ustar archive.
+
+### gnutarsums.sh
+
+custarsums.pl, while being fast and produces nice output [sum  filename],
+does not know much beyond ustar. gnutarsums.sh, while being slow and
+produces somewhat unformatted output, can handle all tar formats.
+gnutarsums.sh forks shell which execs the checksum program for every
+file in the archive.

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Wed 19 Jun 2024 22:25:42 +0300 too
+# Last modified: Mon 12 Jan 2026 21:46:23 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -51,6 +51,7 @@ sub needarg() { die "No value for '$_'\n" unless @ARGV }
 
 my ($tarf1, $tarf2);
 my $care = 'pugtd'; # perm user group time device
+my $NS = 0; # 1: sort filenames by full path, e.g. foo/bar after foo.bar
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -61,6 +62,7 @@ while (@ARGV) {
     }
     $_ = shift;
 
+    $NS = 1, next if $_ eq '-/';
     needarg, push(@res, shift), next if $_ eq '-s';
     needarg, @diffcmds = split(/\s*:\s*/, shift, 2), next if $_ eq '-d';
     needarg, xseekarg(1, shift), next if $_ eq '-x1';
@@ -88,9 +90,11 @@ Options:
     -c (pugtd)               -- for hdrcmp only: perm user group time device
     -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
     -x2 seek,ffmt            -- \\ first seek, then e.g. gunzip if fmt 'tgz'
+    -/                       -- sort by full paths; e.g. name/ after name[,.-]
 
 Hints: -s,.*?/,,  can be used to drop first path component
        -cp        may give good information/noise balance
+       -/         to diff e.g. git-archive -created content
 
 EOF
 }
@@ -209,7 +213,8 @@ sub hdrdiffer() {
     chkdiffer  9, "group name", 'g';
     chkdiffer 10, "device major", 'd';
     chkdiffer 11, "device minor", 'd';
-    return -1 if $h0[6] != '0';
+    return -1 if $h0[6] ne '0'; # may be 'g'
+    #return -1 if $h0[6] != '0';
     return $cmp;
 }
 
@@ -230,8 +235,10 @@ sub read_hdr($$$) {
 	return ("\377\377", 0, 0, 0, 0, 0, '9', '', '', '', 0, 0, 0)
     }
     my @h = unpack_ustar_hdr $buf, $_[2];
-    my $n = ($h[0] =~ tr[/]/\n/r);
-    unless ($_[1] le $n) {
+    my $n = $NS ? $h[0] : ($h[0] =~ tr[/]/\n/r);
+    # checking 'pax_global_header' is a hack to bypass common case, works
+    # if both files have it as first entry (and not (again) in-between)...
+    unless ($_[1] le $n or $_[1] eq 'pax_global_header') { # should chk 'g' too
 	$_[1] =~ tr/\n/\//; $n =~ tr/\n/\//;
 	die "order!: $_[2]: $_[1] > $n\n";
     }

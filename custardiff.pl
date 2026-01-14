@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Mon 12 Jan 2026 21:46:23 +0200 too
+# Last modified: Wed 14 Jan 2026 00:34:28 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -178,7 +178,7 @@ sub unpack_ustar_hdr($$) {
     }
     if (@res) {
 	xforms $l[0];
-	xforms $l[8] if $l[7] == 1; # hard link
+	xforms $l[8] if $l[7] eq '1'; # hard link
     }
     die "$_[1]: '$l[9]': not 'ustar{\\0}00'\n" unless $l[9] eq "ustar\00000";
     return ($l[0], $l[1]+0, $l[2]+0, $l[3]+0, oct($l[4]), oct($l[5]),
@@ -213,8 +213,8 @@ sub hdrdiffer() {
     chkdiffer  9, "group name", 'g';
     chkdiffer 10, "device major", 'd';
     chkdiffer 11, "device minor", 'd';
-    return -1 if $h0[6] ne '0'; # may be 'g'
-    #return -1 if $h0[6] != '0';
+    no warnings;
+    return -1 if ($h0[6] + 0) != '0'; # 'g'
     return $cmp;
 }
 
@@ -234,15 +234,15 @@ sub read_hdr($$$) {
 	$_[1] = "\377\377";
 	return ("\377\377", 0, 0, 0, 0, 0, '9', '', '', '', 0, 0, 0)
     }
-    my @h = unpack_ustar_hdr $buf, $_[2];
+    my @h = unpack_ustar_hdr $buf, $_[2]; # print "@h\n";
     my $n = $NS ? $h[0] : ($h[0] =~ tr[/]/\n/r);
-    # checking 'pax_global_header' is a hack to bypass common case, works
-    # if both files have it as first entry (and not (again) in-between)...
-    unless ($_[1] le $n or $_[1] eq 'pax_global_header') { # should chk 'g' too
+    unless ($_[1] le $n) {
 	$_[1] =~ tr/\n/\//; $n =~ tr/\n/\//;
 	die "order!: $_[2]: $_[1] > $n\n";
     }
-    $_[1] = $n;
+    # checking 'pax_global_header' is a hack to bypass common case,
+    # works at least when either or both have it as first entry...
+    $_[1] = ($n eq 'pax_global_header' and $h[6] eq 'g') ? '' : $n;
     return @h;
 }
 

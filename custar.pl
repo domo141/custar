@@ -8,12 +8,9 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Wed 09 Apr 2025 21:46:50 +0300 too
+# Last modified: Thu 29 Jan 2026 22:25:35 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
-
-# v: 1.1: dir/file vs dir-file sorting, bsd-tar (looka-)like -s option
-# h: 1.0: fifos ignored (sockets irrelevant)
 
 use 5.012;  # so readdir assigns to $_ in a lone while test
 use strict;
@@ -36,6 +33,7 @@ die "\nUsage: $0 tarname mtime [options] [--] dirs/files\n\n",
   "   --xform / -s  -- transform, or (-s/.../.../) (eg. -s:^:dir/:)\n",
   "   --nodirs      -- do not include directory entries to the archive\n",
   "   --noclose     -- do not write closing zeroes (min 1k zero bytes)\n",
+  "    -/           -- sort by full paths, and name/ after name[,.-]\n",
   "\n" unless @ARGV > 2;
 
 my $of = shift;
@@ -83,6 +81,7 @@ my @xforms;
 my $tcwd; # one global, no order-sensitivity (at least for now)
 my $nodirs = 0;
 my $noclose = 0;
+my $NS = 0; # 1: sort filenames by full path, e.g. foo/bar after foo.bar
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -121,6 +120,10 @@ while (@ARGV) {
     }
     if ($_ eq '--noclose') {
 	$noclose = 1;
+	next
+    }
+    if ($_ eq '-/') {
+	$NS = 1;
 	next
     }
     # bsd''tar option
@@ -198,7 +201,7 @@ sub add_filentry($$) {
 	my $sl = readlink $_[1]; # fixme: check error (and test it)
 	die "symlink len of '$sl' is too long\n" if length($sl) > 100;
     }
-    $ftn =~ tr[/][\n]; # for sorting (e.g. dir/fil before dir-fil)
+    $ftn =~ tr[/][\n] unless $NS; # for sorting (e.g. dir/fil before dir-fil)
     push @{$_[0]},
       # name    dev     ino     mode    nlink   rdev    size
       [ $_[1], $st[0], $st[1], $st[2], $st[3], $st[6], $st[7], $ftn ]

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Thu 30 May 2024 22:14:37 +0300 too
+# Last modified: Fri 06 Feb 2026 21:03:24 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -61,18 +61,20 @@ $0 =~ s:.*/::,
 die "\nUsage: $0 [-x seek,ffmt] [-rem-] [+keep+] \\
            [[s:re:repl:] [:/:str:/:rep:/:] ...] ustarchive
 
- filenames matching regeps between -...- are removed from archive
- filenames matching regeps between +...+ are kept in archive
+ filenames matching regexps between -...- are removed from archive
+ filenames matching regexps between +...+ are kept in archive
  - first match decides fate -- file kept if no match
 
- s:re:regexp: modifies filename ( s/re/repl/, s(re)(repl), s're'repl'... )
+ s:re:regexp: modifies filename ( s/re/repl/, s(re)(repl), \"s're'repl'\"... )
  - eval's in perl code: no silly input (noone to run silly code)
 
- :/:str:/:rep:/: replaces content. size must match. '/' can be changed to
- any character (the same to be in all 3 places, not ':'). if file size is
- larger than 1 MiB content only in the last (leftover) \"block\" is replaced
+ :/:str:/:rep:/: replaces file content. sizes must match. '/' can be changed
+ to any string (except anything with ':') (same string in all 3 places).
+ if file size in archive is larger than 1 MiB, content only in the last
+ (leftover) \"block\" in that particular file is replaced.
 
- outputs uncompressed ustar archive, pipe to compressor and redirect to file
+ outputs uncompressed ustar archive to stdout (but will not output to a tty).
+ (optionally pipe to a compressor and then) redirect output to a file.
 
 " unless @ARGV;
 

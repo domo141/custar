@@ -9,7 +9,7 @@
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too (custarfilter)
 # Created: Fri 06 Mar 2026 10:49:00 +0200 too (custargrep)
-# Last modified: Sun 08 Mar 2026 13:11:17 +0200 too
+# Last modified: Thu 19 Mar 2026 21:41:33 +0200 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -17,7 +17,7 @@ use 5.8.1;
 use strict;
 use warnings;
 
-my ($seek, $cf, $fixed, $lnrs) = (0, undef, 0, 0);
+my ($seek, $cf, $fixed, $lnrs, $caseins) = (0, undef, 0, 0, 0);
 
 my %zo = ( 'tar', => '', 'bzip2' => 'bzip2',
 	   'gz' => 'gzip', 'gzip' => 'gzip', 'tgz' => 'gzip',
@@ -46,23 +46,24 @@ while (@ARGV) {
     needarg, push(@pats, shift), shift, next if $_ eq '-e';
     needarg, xseekarg(shift), shift, next if $_ eq '-x';
     xseekarg($1), shift, next if /^-x[,=](.*)/;
-    if (tr/-Fn//cd) {
-	tr/-Fn//d;
-	die "$ARGV[0]: unknown options: '$_'\n"
+    if (tr/-Fni//cd) {
+	$_ = $ARGV[0]; tr/Fni//d;
+	$0 =~ s:.*/::, die "$0: unknown options: '$_'\n"
     }
     $fixed = 1 if /F/;
     $lnrs = 1 if /n/;
+    $caseins = 1 if /i/;
     shift
 }
-$0 =~ s:.*/::,
-die "\nUsage: $0 [-x seek,ffmt] [-nF] [-e pattern...] [--] [pattern] ustarchives
+$0 =~ s:.*/::, die "
+Usage: $0 [-x seek,ffmt] [-nFi] [-e pattern...] [--] [pattern] ustarchives
 
 " unless @ARGV;
 
 unless (@pats) {
     push @pats, shift;
-    die "No input ustar files\n" unless (@ARGV);
-    die "Only one tarfile when -x is used\n" if $seek && @ARGV > 1
+    $0 =~ s:.*/::, die "$0: No input ustar files\n" unless (@ARGV);
+    $0 =~ s:.*/::, die "$0: Only one tarfile when -x is used\n" if $seek && @ARGV > 1
 }
 
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
@@ -144,7 +145,9 @@ sub read_hdr($) {
     return unpack_ustar_hdr $buf;
 }
 
-unless ($fixed) { $_ = qr/$_/ for (@pats) }
+if ($fixed) { $_ = quotemeta $_ for (@pats) }
+$_ = ($caseins? qr/$_/i: qr/$_/) for (@pats);
+undef $fixed;
 
 for (@ARGV) {
     $tarfn = $_;
@@ -180,19 +183,10 @@ for (@ARGV) {
 		    $ll = ''
 		}
 		if ($fnn) { for my $pat (@pats) {
-		    if ($fixed) {
-			if (index($buf, $pat) >= 0) {
-			    print "$name: binary file matches\n";
-			    $fnn = '';
-			    last
-			}
-		    }
-		    else {
-			if ($buf =~ /$pat/) {
-			    print "$name: binary file matches\n";
-			    $fnn = '';
-			    last
-			}
+		    if ($buf =~ /$pat/) {
+			print "$name: binary file matches\n";
+			$fnn = '';
+			last
 		    }
 		}}
 	    }
@@ -205,27 +199,13 @@ for (@ARGV) {
 		    }
 		    else { '' }
 		};
-		if ($fixed) {
-		    for (@lines) {
-			$ln++;
-			for my $pat (@pats) {
-			    if (index($_, $pat) >= 0) {
-				$fnn = "$name:$ln" if $lnrs;
-				print $fnn,':',$_,"\n";
-				last
-			    }
-			}
-		    }
-		}
-		else {
-		    for (@lines) {
-			$ln++;
-			for my $pat (@pats) {
-			    if (/$pat/) {
-				$fnn = "$name:$ln" if $lnrs;
-				print $fnn,':',$_,"\n";
-				last
-			    }
+		for (@lines) {
+		    $ln++;
+		    for my $pat (@pats) {
+			if (/$pat/) {
+			    $fnn = "$name:$ln" if $lnrs;
+			    print $fnn,':',$_,"\n";
+			    last
 			}
 		    }
 		}

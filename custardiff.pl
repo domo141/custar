@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 29 Jan 2026 19:22:23 +0200 too
+# Last modified: Thu 09 Apr 2026 19:45:25 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -52,6 +52,7 @@ sub needarg() { die "No value for '$_'\n" unless @ARGV }
 my ($tarf1, $tarf2);
 my $care = 'pugtd'; # perm user group time device
 my $NS = 0; # 1: sort filenames by full path, e.g. foo/bar after foo.bar
+my @exclres;
 
 while (@ARGV) {
     shift, last if $ARGV[0] eq '--';
@@ -64,6 +65,7 @@ while (@ARGV) {
 
     $NS = 1, next if $_ eq '-/';
     needarg, push(@res, shift), next if $_ eq '-s';
+    needarg, push(@exclres, shift), next if $_ eq '-x';
     needarg, @diffcmds = split(/\s*:\s*/, shift, 2), next if $_ eq '-d';
     needarg, xseekarg(1, shift), next if $_ eq '-x1';
     needarg, xseekarg(2, shift), next if $_ eq '-x2';
@@ -71,6 +73,7 @@ while (@ARGV) {
     needarg, $care = shift, next if $_ eq '-c';
 
     push(@res, $1), next if $_ =~ /^-s(.*)/;
+    push(@exclres, $1), next if $_ =~ /^-x(.*)/;
     needarg, @diffcmds = split(/\s*:\s*/, $1, 2), next if $_ =~ /^-d(.*)/;
     xseekarg(1, $1), next if $_ =~ /^-x1[,=](.*)/;
     xseekarg(2, $1), next if $_ =~ /^-x2[,=](.*)/;
@@ -86,6 +89,7 @@ Usage: $0 [-options] ustarchive1 ustarchive2
 
 Options:
     -s /regexp/replacement/  -- filename replacements (for filename matching)
+    -x regexp  [-x regexp]   -- exclude filenames matching regexp[s]
     -d [tdiff]:[bdiff]       -- optional text/binary diff programs
     -c (pugtd)               -- for hdrcmp only: perm user group time device
     -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
@@ -126,6 +130,8 @@ if (@res) {
     $eval .= "\n}; 1";
     eval $eval or die "Unsupported/broken '-s ...' content\n";
 }
+
+$_ = qr/$_/ foreach (@exclres);
 
 my %zc = ( '.tar' => '', '.tar.bzip2' => 'bzip2',
 	   '.tar.gz' => 'gzip', '.tgz' => 'gzip',
@@ -218,12 +224,13 @@ sub hdrdiffer() {
     return $cmp;
 }
 
-my ($pname0, $pname1) = ('', '');
+my ($pname1, $pname2) = ('', '');
 my $z512 = "\0" x 512;
 
+sub consume($$$);
 sub read_hdr($$$) {
     my $buf;
-    while (1) {
+  T: while (1) {
 	my $l = read $_[0], $buf, 512;
 	die $! unless defined $l;
 	if ($l == 512) {
@@ -235,6 +242,12 @@ sub read_hdr($$$) {
 	return ("\377\377", 0, 0, 0, 0, 0, '9', '', '', '', 0, 0, 0)
     }
     my @h = unpack_ustar_hdr $buf, $_[2]; # print "@h\n";
+    for (@exclres) {
+	if ($h[0] =~ $_) {
+	    consume $_[0], $h[4], '';
+	    goto T
+	}
+    }
     my $n = $NS ? $h[0] : ($h[0] =~ tr[/]/\n/r);
     unless ($_[1] le $n) {
 	$_[1] =~ tr/\n/\//; $n =~ tr/\n/\//;
@@ -381,12 +394,12 @@ my (@only1, @only2);
 print "\n =-- File differences --=\n";
 
 T: while (1) {
-    @h0 = read_hdr $fh1, $pname0, $tarf1;
-    @h1 = read_hdr $fh2, $pname1, $tarf2;
+    @h0 = read_hdr $fh1, $pname1, $tarf1;
+    @h1 = read_hdr $fh2, $pname2, $tarf2;
     last unless $h0[12] and $h1[12];
 
     while (1) {
-	my $n = $pname0 cmp $pname1;
+	my $n = $pname1 cmp $pname2;
 	if ($n == 0) {
 	    my $w = hdrdiffer;
 	    if ($w <= 0) { # 0 and -1: diffing not implemented yet
@@ -403,12 +416,12 @@ T: while (1) {
 	if ($n < 0) {
 	    push @only1, $h0[0]; # warn "<<< $h0[0]\n";
 	    consume $fh1, $h0[4], '';
-	    @h0 = read_hdr $fh1, $pname0, $tarf1;
+	    @h0 = read_hdr $fh1, $pname1, $tarf1;
 	}
 	else {
 	    push @only2, $h1[0]; # warn ">>> $h0[0]\n";
 	    consume $fh2, $h1[4], '';
-	    @h1 = read_hdr $fh2, $pname1, $tarf2;
+	    @h1 = read_hdr $fh2, $pname2, $tarf2;
 	}
     }
     last

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Thu 09 Apr 2026 19:45:25 +0300 too
+# Last modified: Fri 10 Apr 2026 17:24:21 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -65,18 +65,18 @@ while (@ARGV) {
 
     $NS = 1, next if $_ eq '-/';
     needarg, push(@res, shift), next if $_ eq '-s';
-    needarg, push(@exclres, shift), next if $_ eq '-x';
     needarg, @diffcmds = split(/\s*:\s*/, shift, 2), next if $_ eq '-d';
     needarg, xseekarg(1, shift), next if $_ eq '-x1';
     needarg, xseekarg(2, shift), next if $_ eq '-x2';
-    needarg, xseekarg('', shift), next if $_ eq '-x';
+    needarg, push(@exclres, shift), next if $_ eq '-x';
+    #needarg, xseekarg('', shift), next if $_ eq '-x';
     needarg, $care = shift, next if $_ eq '-c';
 
     push(@res, $1), next if $_ =~ /^-s(.*)/;
-    push(@exclres, $1), next if $_ =~ /^-x(.*)/;
     needarg, @diffcmds = split(/\s*:\s*/, $1, 2), next if $_ =~ /^-d(.*)/;
-    xseekarg(1, $1), next if $_ =~ /^-x1[,=](.*)/;
-    xseekarg(2, $1), next if $_ =~ /^-x2[,=](.*)/;
+    xseekarg(1, $1), next if $_ =~ /^-x1[,=](\d.*)/;
+    xseekarg(2, $1), next if $_ =~ /^-x2[,=](\d.*)/;
+    push(@exclres, $1), next if $_ =~ /^-x(.*)/;
     $care = $1, next if $_ =~ /^-c(.*)/;
 
     die "'$_': unknown option\n"
@@ -89,7 +89,7 @@ Usage: $0 [-options] ustarchive1 ustarchive2
 
 Options:
     -s /regexp/replacement/  -- filename replacements (for filename matching)
-    -x regexp  [-x regexp]   -- exclude filenames matching regexp[s]
+    -x regexp  [-x regexp]   -- exclude filenames matching regexp[s] (!-x1,-x2)
     -d [tdiff]:[bdiff]       -- optional text/binary diff programs
     -c (pugtd)               -- for hdrcmp only: perm user group time device
     -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt

@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Wed 23 Apr 2025 21:23:43 +0300 too
-# Last modified: Fri 05 Sep 2025 12:27:18 +0300 too
+# Last modified: Mon 13 Apr 2026 19:55:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -147,7 +147,7 @@ sub read_hdr($$) {
 sub _tarlisted_nampfx($$) {
     local $_ = $_[0];
     my $n = '';
-    while (s:/([^/]+)$::) {
+    while (s:/([^/]+/?)$::) {
 	$n = $n? "$n/$1": $1;
 	last if length $n > 100;
 	next if length $_ > 155;

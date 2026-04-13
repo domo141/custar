@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Mon 13 Apr 2026 19:47:09 +0300 too
+# Last modified: Mon 13 Apr 2026 19:55:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -174,7 +174,7 @@ sub fate($)
 sub _tarlisted_nampfx($$) {
     local $_ = $_[0];
     my $n = '';
-    while (s:/([^/]+)$::) {
+    while (s:/([^/]+/?)$::) {
 	$n = $n? "$n/$1": $1;
 	last if length $n > 100;
 	next if length $_ > 155;

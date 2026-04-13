@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too
-# Last modified: Thu 29 Jan 2026 22:25:35 +0200 too
+# Last modified: Mon 13 Apr 2026 19:55:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -397,7 +397,7 @@ sub _tarlisted_pipetocmd(@)
 sub _tarlisted_nampfx($$) {
     local $_ = $_[0];
     my $n = '';
-    while (s:/([^/]+)$::) {
+    while (s:/([^/]+/?)$::) {
 	$n = $n? "$n/$1": $1;
 	last if length $n > 100;
 	next if length $_ > 155;

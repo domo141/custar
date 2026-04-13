@@ -6,7 +6,7 @@
 #
 # Created: Fri 21 Aug 2020 18:18:04 EEST too (custar.pl)
 # Created: Thu 03 Apr 2025 23:10:17 EEST too (tarxzin.pl)
-# Last modified: Mon 05 May 2025 21:36:18 +0300 too
+# Last modified: Mon 13 Apr 2026 19:55:42 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -200,7 +200,7 @@ sub _tarlisted_pipetocmd(@)
 sub _tarlisted_nampfx($$) {
     local $_ = $_[0];
     my $n = '';
-    while (s:/([^/]+)$::) {
+    while (s:/([^/]+/?)$::) {
 	$n = $n? "$n/$1": $1;
 	last if length $n > 100;
 	next if length $_ > 155;

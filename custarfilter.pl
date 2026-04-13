@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 04 Nov 2022 19:58:45 +0200 too
-# Last modified: Fri 06 Feb 2026 21:03:24 +0200 too
+# Last modified: Mon 13 Apr 2026 19:47:09 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -216,8 +216,8 @@ while (1) {
 	next
     }
     push @o, $n;
-    push @o, '=>', $hdr[8] if $hdr[7] == 1; # show hard link target
-    push @o, '->', $hdr[8] if $hdr[7] == 2; # show sym. link target
+    push @o, '=>', $hdr[8] if $hdr[7] eq '1'; # show hard link target
+    push @o, '->', $hdr[8] if $hdr[7] eq '2'; # show sym. link target
     #warn "@o\n" if @o;
 
     if ($n_orig ne $n) {

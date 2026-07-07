@@ -7,8 +7,8 @@
 #	Copyright (c) 2020 Tomi Ollila
 #	    All rights reserved
 #
-# Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Tue 07 Jul 2026 18:09:41 +0300 too
+# Created: Fri 11 Sep 2020 21:24:10 EEST to
+# Last modified: Tue 07 Jul 2026 18:12:02 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -88,13 +88,13 @@ unless (defined $tarf2) {
 Usage: $0 [-options] ustarchive1 ustarchive2
 
 Options:
-    -s /regexp/replacement/  -- filename replacements (for filename matching)
-    -x regexp  [-x regexp]   -- exclude filenames matching regexp[s] (!-x1,-x2)
-    -d [tdiff]:[bdiff]       -- optional text/binary diff programs
-    -c (pugtd)               -- for hdrcmp only: perm user group time device
-    -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
-    -x2 seek,ffmt            -- \\ first seek, then e.g. gunzip if fmt 'tgz'
-    -/                       -- sort by full paths, and name/ after name[,.-]
+  -s /regexp/replacement/  -- filename replacements (for filename matching)
+  -x regexp  [-x regexp]   -- exclude filenames matching regexp[s] (!-x1,-x2)
+  -d [tdiff|.]:[bdiff|.]   -- text:binary diff programs - [defaults] / '.':no
+  -c (pugtd)               -- for hdrcmp only: perm user group time device
+  -x1 seek,ffmt            -- seek to position in file,file (compr.) fmt
+  -x2 seek,ffmt            -- \\ first seek, then e.g. gunzip if fmt 'tgz'
+  -/                       -- sort by full paths, and name/ after name[,.-]
 
 Hints: -s,.*?/,,  can be used to drop first path component
        -cp        may give good information/noise balance
@@ -318,11 +318,13 @@ $ENV{LESSSECURE} = '1';
 sub rundiff($$)
 {
     my $diffcmd = $binary? $diffcmds[1]: $diffcmds[0];
+    return if $diffcmd->[0] eq '.';
     #system qw/sh -c/, 'echo $# -- $0 -- $@', $diffcmd, $_[0], $_[1];
     print "Executing @{$diffcmd} $_[0] $_[1]\n";
     $ENV{LESS} = "iP%lt-%lb " . $h0[0]; # '.'s lost. good enough
     system @{$diffcmd}, $_[0], $_[1];
     unlink $_[0], $_[1];
+    exit 27 if $? == 6912; # 27 * 256 // works with some diff commands...
     $binary = 0;
 }
 

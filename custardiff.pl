@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Fri 10 Apr 2026 17:24:21 +0300 too
+# Last modified: Tue 07 Jul 2026 18:05:46 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -396,8 +396,22 @@ print "\n =-- File differences --=\n";
 T: while (1) {
     @h0 = read_hdr $fh1, $pname1, $tarf1;
     @h1 = read_hdr $fh2, $pname2, $tarf2;
-    last unless $h0[12] and $h1[12];
-
+    unless ($h0[12]) {
+	while ($h1[12]) {
+	    push @only2, $h1[0];
+	    consume $fh2, $h1[4], '';
+	    @h1 = read_hdr $fh2, $pname2, $tarf2;
+	}
+	last
+    }
+    unless ($h1[12]) {
+	while ($h0[12]) {
+	    push @only1, $h0[0];
+	    consume $fh1, $h0[4], '';
+	    @h0 = read_hdr $fh1, $pname1, $tarf1;
+	}
+	last
+    }
     while (1) {
 	my $n = $pname1 cmp $pname2;
 	if ($n == 0) {

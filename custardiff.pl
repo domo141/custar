@@ -8,7 +8,7 @@
 #	    All rights reserved
 #
 # Created: Fri 11 Sep 2020 21:24:10 EEST too
-# Last modified: Tue 07 Jul 2026 18:05:46 +0300 too
+# Last modified: Tue 07 Jul 2026 18:09:41 +0300 too
 
 # SPDX-License-Identifier: BSD 2-Clause "Simplified" License
 
@@ -250,8 +250,10 @@ sub read_hdr($$$) {
     }
     my $n = $NS ? $h[0] : ($h[0] =~ tr[/]/\n/r);
     unless ($_[1] le $n) {
-	$_[1] =~ tr/\n/\//; $n =~ tr/\n/\//;
-	die "order!: $_[2]: $_[1] > $n\n";
+	my $r = $_[1]; $r =~ tr/\n/\//; $n =~ tr/\n/\//;
+	warn "order!: $_[2]: $r > $n (skipping)\n";
+	consume $_[0], $h[4], '';
+	goto T
     }
     # checking 'pax_global_header' is a hack to bypass common case,
     # works at least when either or both have it as first entry...
